@@ -5,3 +5,5 @@
 #
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
+# Real Example:
+#   Commerce.create(product: 'Laptop Dell 14', description: 'Laptop Dell 14', price: '1500', image: 'https://m.media-amazon.com/images/I/615VKhqZtTL.jpg', department: 'Electronics', color: 'Gray')
