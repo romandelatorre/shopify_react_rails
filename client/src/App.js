@@ -1,12 +1,8 @@
-import {Commerce} from './components/Commerce';
+import { Commerce } from "./components/Commerce";
+import "./App.css";
 
 function App() {
-  return (
-    <div className="App">
-      Hello world!
-      <Commerce/>
-    </div>
-  );
+  return <Commerce />;
 }
 
 export default App;
