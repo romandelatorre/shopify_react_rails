@@ -11,6 +11,10 @@ import {
   Row,
   Button,
   Drawer,
+  InputNumber,
+  Descriptions,
+  Image,
+  Typography,
 } from "antd";
 
 import {
@@ -24,6 +28,7 @@ import {
 } from "@ant-design/icons";
 const { Header, Content, Footer, Sider } = Layout;
 const { Meta } = Card;
+const { Title } = Typography;
 
 const contentStyle = {
   height: "400px",
@@ -64,15 +69,8 @@ function getTooltip(tooltipText, icon) {
 export const Commerce = () => {
   const [dataCommerce, setDataCommerce] = useState([]);
   const [collapsed, setCollapsed] = useState(false);
+  const [selectedItem, setSelectedItem] = useState({});
   const [open, setOpen] = useState(false);
-
-  const showDrawer = () => {
-    setOpen(true);
-  };
-
-  const closeDrawer = () => {
-    setOpen(false);
-  };
 
   useEffect(() => {
     fetch("api/v1/commerces")
@@ -81,94 +79,121 @@ export const Commerce = () => {
       .catch((error) => console.error(error));
   }, []);
 
-  return (
-    <>
-      <Layout
-        style={{
-          minHeight: "100vh",
-        }}
-      >
-        <Sider
-          collapsible
-          collapsed={collapsed}
-          onCollapse={(value) => setCollapsed(value)}
-        >
-          <div className="logo" />
-          <Menu
-            theme="dark"
-            defaultSelectedKeys={["1"]}
-            mode="inline"
-            items={items}
-          />
-        </Sider>
-        <Layout className="site-layout">
-          <Header
-            className="site-layout-background"
-            style={{
-              padding: 0,
-            }}
-          />
-          <Content>
-            <Carousel autoplay>
-              <div>
-                <h3 style={contentStyle}>1</h3>
-              </div>
-              <div>
-                <h3 style={contentStyle}>2</h3>
-              </div>
-              <div>
-                <h3 style={contentStyle}>3</h3>
-              </div>
-              <div>
-                <h3 style={contentStyle}>4</h3>
-              </div>
-            </Carousel>
+  const showDrawer = (item) => {
+    setOpen(true);
+    setSelectedItem(item);
+  };
 
-            <Row align="middle" justify="space-evenly">
-              {dataCommerce.map((item) => (
-                <>
-                  <Col span={3}>
-                    <Card
-                      hoverable
-                      style={{ width: 300 }}
-                      cover={<img alt={item.image} src={item.image} />}
-                      actions={[
-                        getTooltip("Anadir a favoritos", <HeartOutlined />),
-                        getTooltip(
-                          "Anadir al carrito",
-                          <ShoppingCartOutlined onClick={showDrawer} />
-                        ),
-                      ]}
-                    >
-                      <Meta
-                        title={item.product}
-                        description={item.description}
-                      />
-                    </Card>
-                  </Col>
-                  <Drawer
-                    title="Terminar Compra"
-                    placement="right"
-                    onClose={closeDrawer}
-                    open={open}
-                  >
-                    <p>Some contents...</p>
-                    <p>Some contents...</p>
-                    <p>Some contents...</p>
-                  </Drawer>
-                </>
-              ))}
-            </Row>
-          </Content>
-          <Footer
-            style={{
-              textAlign: "center",
-            }}
-          >
-            Footer App
-          </Footer>
-        </Layout>
+  const closeDrawer = () => {
+    setOpen(false);
+  };
+
+  const onChange = (value) => {
+    console.log("changed", value);
+  };
+
+  return (
+    <Layout
+      style={{
+        minHeight: "100vh",
+      }}
+    >
+      <Sider
+        collapsible
+        collapsed={collapsed}
+        onCollapse={(value) => setCollapsed(value)}
+      >
+        <div className="logo" />
+        <Menu
+          theme="dark"
+          defaultSelectedKeys={["1"]}
+          mode="inline"
+          items={items}
+        />
+      </Sider>
+      <Layout className="site-layout">
+        <Header
+          className="site-layout-background"
+          style={{
+            padding: 0,
+          }}
+        />
+        <Content>
+          <Carousel autoplay>
+            <div>
+              <h3 style={contentStyle}>1</h3>
+            </div>
+            <div>
+              <h3 style={contentStyle}>2</h3>
+            </div>
+            <div>
+              <h3 style={contentStyle}>3</h3>
+            </div>
+            <div>
+              <h3 style={contentStyle}>4</h3>
+            </div>
+          </Carousel>
+          <Row align="middle" justify="space-evenly">
+            {dataCommerce.map((item, index) => (
+              <Col span={3} key={index}>
+                <Card
+                  hoverable
+                  style={{ width: 300 }}
+                  cover={<img alt={item.image} src={item.image} />}
+                  actions={[
+                    getTooltip("Anadir a favoritos", <HeartOutlined />),
+                    getTooltip(
+                      "Anadir al carrito",
+                      <ShoppingCartOutlined onClick={() => showDrawer(item)} />
+                    ),
+                  ]}
+                >
+                  <Meta title={item.product} description={item.description} />
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        </Content>
+        <Footer
+          style={{
+            textAlign: "center",
+          }}
+        >
+          Footer App
+        </Footer>
       </Layout>
-    </>
+      <Drawer
+        title="Terminar Compra"
+        placement="right"
+        onClose={closeDrawer}
+        open={open}
+      >
+        <Image width={300} src={selectedItem.image} />
+        <Row justify="center" align="middle">
+          <Col span={24}>
+            {" "}
+            <Title level={3}>{selectedItem.product}</Title>
+          </Col>
+        </Row>
+        <Row>
+          <Col span={12}>
+            <Title level={4}>Price: $ {selectedItem.price} USD</Title>
+          </Col>
+          <Row>
+            <Col span={12}>
+              <Title level={4}>Quantity: </Title>
+            </Col>
+            <Col span={12}>
+              <InputNumber
+                min={1}
+                max={5}
+                defaultValue={1}
+                onChange={onChange}
+              />
+            </Col>
+          </Row>
+        </Row>
+      </Drawer>
+    </Layout>
   );
 };
