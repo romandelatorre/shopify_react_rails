@@ -1,10 +1,10 @@
 import React from "react";
 import { useEffect, useState } from "react";
 
+// Design System
 import {
   Carousel,
   Layout,
-  Menu,
   Card,
   Tooltip,
   Col,
@@ -12,21 +12,23 @@ import {
   Button,
   Drawer,
   InputNumber,
-  Descriptions,
   Image,
   Typography,
+  PageHeader,
+  Input,
 } from "antd";
 
 import {
-  DesktopOutlined,
-  FileOutlined,
-  PieChartOutlined,
-  TeamOutlined,
-  UserOutlined,
   HeartOutlined,
   ShoppingCartOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
-const { Header, Content, Footer, Sider } = Layout;
+
+// Uitls
+import { Link } from "react-router-dom";
+import axios from "axios";
+
+const { Content, Footer } = Layout;
 const { Meta } = Card;
 const { Title } = Typography;
 
@@ -38,37 +40,12 @@ const contentStyle = {
   background: "#364d79",
 };
 
-function getItem(label, key, icon, children) {
-  return {
-    key,
-    icon,
-    children,
-    label,
-  };
-}
-
-const items = [
-  getItem("Option 1", "1", <PieChartOutlined />),
-  getItem("Option 2", "2", <DesktopOutlined />),
-  getItem("User", "sub1", <UserOutlined />, [
-    getItem("Tom", "3"),
-    getItem("Bill", "4"),
-    getItem("Alex", "5"),
-  ]),
-  getItem("Team", "sub2", <TeamOutlined />, [
-    getItem("Team 1", "6"),
-    getItem("Team 2", "8"),
-  ]),
-  getItem("Files", "9", <FileOutlined />),
-];
-
 function getTooltip(tooltipText, icon) {
   return <Tooltip title={tooltipText}>{icon}</Tooltip>;
 }
 
-export const Commerce = () => {
+export const Commerce = ({ userDataSession, handleLogout }) => {
   const [dataCommerce, setDataCommerce] = useState([]);
-  const [collapsed, setCollapsed] = useState(false);
   const [selectedItem, setSelectedItem] = useState({});
   const [open, setOpen] = useState(false);
 
@@ -92,32 +69,51 @@ export const Commerce = () => {
     console.log("changed", value);
   };
 
+  const handleLogoutClick = () => {
+    axios
+      .delete("http://localhost:3001/logout", { withCredentials: true })
+      .then((response) => {
+        handleLogout();
+      })
+      .catch((error) => {
+        console.log("logout error", error);
+      });
+  };
+  console.log("hola soy userDataSession", userDataSession);
   return (
     <Layout
       style={{
         minHeight: "100vh",
       }}
     >
-      <Sider
-        collapsible
-        collapsed={collapsed}
-        onCollapse={(value) => setCollapsed(value)}
-      >
-        <div className="logo" />
-        <Menu
-          theme="dark"
-          defaultSelectedKeys={["1"]}
-          mode="inline"
-          items={items}
-        />
-      </Sider>
+      <PageHeader
+        className="site-page-header-responsive"
+        title="Shopify"
+        subTitle="By Roman De La Torre"
+        extra={[
+          <Input
+            size="large"
+            placeholder="Que Buscas?"
+            prefix={<SearchOutlined />}
+          />,
+          <h3>
+            {userDataSession.logged_in
+              ? `Hola  ${userDataSession?.user?.username}`
+              : null}
+          </h3>,
+          <Button key="3">
+            <Link to="/login">Login</Link>
+          </Button>,
+          <Button key="2">
+            <Link to="/signup">Signup</Link>
+          </Button>,
+          <Button key="1" type="primary" onClick={handleLogoutClick}>
+            Logout
+          </Button>,
+        ]}
+      />
+
       <Layout className="site-layout">
-        <Header
-          className="site-layout-background"
-          style={{
-            padding: 0,
-          }}
-        />
         <Content>
           <Carousel autoplay>
             <div>
@@ -171,7 +167,6 @@ export const Commerce = () => {
         <Image width={300} src={selectedItem.image} />
         <Row justify="center" align="middle">
           <Col span={24}>
-            {" "}
             <Title level={3}>{selectedItem.product}</Title>
           </Col>
         </Row>
@@ -193,6 +188,7 @@ export const Commerce = () => {
             </Col>
           </Row>
         </Row>
+        <Button type="primary">Finalizar Compra</Button>
       </Drawer>
     </Layout>
   );
