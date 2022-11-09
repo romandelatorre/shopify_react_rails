@@ -48,6 +48,7 @@ export const Commerce = ({ userDataSession, handleLogout }) => {
   const [dataCommerce, setDataCommerce] = useState([]);
   const [selectedItem, setSelectedItem] = useState({});
   const [open, setOpen] = useState(false);
+  const [searchData, setSearchData] = useState("");
 
   useEffect(() => {
     fetch("api/v1/commerces")
@@ -79,7 +80,16 @@ export const Commerce = ({ userDataSession, handleLogout }) => {
         console.log("logout error", error);
       });
   };
-  console.log("hola soy userDataSession", userDataSession);
+
+  const searchItems = dataCommerce
+    .map((item) => item)
+    .filter((item) =>
+      item.product
+        .toString()
+        .toLowerCase()
+        .includes(searchData.toLocaleLowerCase())
+    );
+  console.log("hola soy searchItems", !searchItems.length);
   return (
     <Layout
       style={{
@@ -95,21 +105,28 @@ export const Commerce = ({ userDataSession, handleLogout }) => {
             size="large"
             placeholder="Que Buscas?"
             prefix={<SearchOutlined />}
+            value={searchData}
+            autoComplete="off"
+            onChange={(event) => setSearchData(event.target.value)}
           />,
-          <h3>
-            {userDataSession.logged_in
-              ? `Hola  ${userDataSession?.user?.username}`
-              : null}
-          </h3>,
-          <Button key="3">
-            <Link to="/login">Login</Link>
-          </Button>,
-          <Button key="2">
-            <Link to="/signup">Signup</Link>
-          </Button>,
-          <Button key="1" type="primary" onClick={handleLogoutClick}>
-            Logout
-          </Button>,
+          <>
+            <h3>
+              {userDataSession.logged_in
+                ? `Hola  ${userDataSession?.user?.username}`
+                : null}
+            </h3>
+            <Button key="3">
+              <Link to="/login">Login</Link>
+            </Button>
+            <Button key="2">
+              <Link to="/signup">Signup</Link>
+            </Button>
+            {userDataSession.logged_in ? (
+              <Button key="1" type="primary" onClick={handleLogoutClick}>
+                Logout
+              </Button>
+            ) : null}
+          </>,
         ]}
       />
 
@@ -130,24 +147,30 @@ export const Commerce = ({ userDataSession, handleLogout }) => {
             </div>
           </Carousel>
           <Row align="middle" justify="space-evenly">
-            {dataCommerce.map((item, index) => (
-              <Col span={3} key={index}>
-                <Card
-                  hoverable
-                  style={{ width: 300 }}
-                  cover={<img alt={item.image} src={item.image} />}
-                  actions={[
-                    getTooltip("Anadir a favoritos", <HeartOutlined />),
-                    getTooltip(
-                      "Anadir al carrito",
-                      <ShoppingCartOutlined onClick={() => showDrawer(item)} />
-                    ),
-                  ]}
-                >
-                  <Meta title={item.product} description={item.description} />
-                </Card>
-              </Col>
-            ))}
+            {!!searchItems.length ? (
+              searchItems.map((item, index) => (
+                <Col span={3} key={index}>
+                  <Card
+                    hoverable
+                    style={{ width: 300 }}
+                    cover={<img alt={item.image} src={item.image} />}
+                    actions={[
+                      getTooltip("Anadir a favoritos", <HeartOutlined />),
+                      getTooltip(
+                        "Anadir al carrito",
+                        <ShoppingCartOutlined
+                          onClick={() => showDrawer(item)}
+                        />
+                      ),
+                    ]}
+                  >
+                    <Meta title={item.product} description={item.description} />
+                  </Card>
+                </Col>
+              ))
+            ) : (
+              <Title level={3}>Ups Este Producto No Existe</Title>
+            )}
           </Row>
         </Content>
         <Footer
